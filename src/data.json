@@ -1,11 +1,11 @@
 {
 	"lum": [
-		{"title": "Plein jour", "nb": 77513, "avg": 33.14},
-		{"title": "Nuit", "nb": 18523, "avg": 18.01}
+		{"title": "1", "nb": 77513, "avg": 33.14},
+		{"title": "2", "nb": 18523, "avg": 18.01}
 	],
 	"atm": [
-		{"title": "Beau", "nb": 18517, "avg": 21.37},
-		{"title": "Couvert", "nb": 33412, "avg": 8.5},
-		{"title": "Pluvieux", "nb": 58120, "avg": 17.4}
+		{"title": "1", "nb": 18517, "avg": 21.37},
+		{"title": "2", "nb": 33412, "avg": 8.5},
+		{"title": "3", "nb": 58120, "avg": 17.4}
 	]
 }

@@ -45,18 +45,18 @@ $(function () {
     //alert($("#criteria").val());
     selectedData = jsonData[$("#criteria").val()];
     $("svg").remove();
-    renderChart(selectedData);
+    renderChart(selectedCriteria, selectedData);
   });
 
 
   $.getJSON("data.json", function(data, status) {
     jsonData = data;
     selectedData = data[selectedCriteria];
-    renderChart(selectedData);
+    renderChart(selectedCriteria, selectedData);
   });
 });
 
-function renderChart(selectedData) {
+function renderChart(selectedCriteria, selectedData) {
   var margin = {top: 80, right: 80, bottom: 80, left: 80},
       width = 800 - margin.left - margin.right,
       height = 400 - margin.top - margin.bottom;
@@ -87,7 +87,7 @@ function renderChart(selectedData) {
     .append("g")
       .attr("class", "graph")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-    x.domain(selectedData.map(function(d) { return d.title; }));
+    x.domain(selectedData.map(function(d) { return fromValue(selectedCriteria, d.title); }));
     y0.domain([0, d3.max(selectedData, function(d) { return d.nb; })]);
     
     svg.append("g")
@@ -121,18 +121,84 @@ function renderChart(selectedData) {
 
     bars.append("rect")
         .attr("class", "bar1")
-        .attr("x", function(d) { return x(d.title); })
+        .attr("x", function(d) { return x(fromValue(selectedCriteria, d.title)); })
         .attr("width", x.rangeBand()/2)
         .attr("y", function(d) { return y0(d.nb); })
       .attr("height", function(d,i,j) { return height - y0(d.nb); }); 
 
     bars.append("rect")
         .attr("class", "bar2")
-        .attr("x", function(d) { return x(d.title) + x.rangeBand()/2; })
+        .attr("x", function(d) { return x(fromValue(selectedCriteria, d.title)) + x.rangeBand()/2; })
         .attr("width", x.rangeBand() / 2)
         .attr("y", function(d) { return y1(d.avg); })
       .attr("height", function(d,i,j) { return height - y1(d.avg); }); 
 
+}
+
+
+function fromValue(criteria, value) {
+  var mapping = {
+    lum: {
+      "1": "Plein jour",
+      "2": "Crépuscule ou aube",
+      "3": "Nuit sans éclairage public",
+      "4": "Nuit avec éclairage public non allumé",
+      "5": "Nuit avec éclairage public allumé"
+    },
+    agg: {
+      "1": "Hors agglomération",
+      "2": "Agglomération de moins de 2 000 habitants",
+      "3": "Agglomération entre 2 000 habitants et 5 000 habitants",
+      "4": "Agglomération entre 5 000 habitants et 10 000 habitants",
+      "5": "Agglomération entre 10 000 habitants et 20 000 habitants",
+      "6": "Agglomération entre 20 000 habitants et 50 000 habitants",
+      "7": "Agglomération entre 50 000 habitants et 100 000 habitants",
+      "8": "Agglomération entre 100 000 habitants et 300 000 habitants",
+      "9": "Agglomération de plus de 300 000 habitants"
+    },
+    "int": {
+      "1": "Hors intersection",
+      "2": "Intersection en X",
+      "3": "Intersection en T",
+      "4": "Intersection en Y",
+      "5": "Intersection à plus de 4 branches",
+      "6": "Giratoire",
+      "7": "Place",
+      "8": "Passage à niveau",
+      "9": "Autre intersection"
+    },
+    atm: {
+      "1": "Normale",
+      "2": "Pluie légère",
+      "3": "Pluie forte",
+      "4": "Neige - grêle",
+      "5": "Brouillard - fumée",
+      "6": "Vent fort - tempête",
+      "7": "Temps éblouissant",
+      "8": "Temps couvert",
+      "9": "Autre"
+    },
+    col: {
+      "1": "Deux véhicules - frontale",
+      "2": "Deux véhicules – par l’arrière",
+      "3": "Deux véhicules – par le coté",
+      "4": "Trois véhicules et plus – en chaîne",
+      "5": "Trois véhicules et plus  - collisions multiples",
+      "6": "Autre collision",
+      "7": "Sans collision"
+    },
+    catr: {
+      "1": "Autoroute",
+      "2": "Route Nationale", 
+      "3": "Route Départementale", 
+      "4": "Voie Communale", 
+      "5": "Hors réseau public", 
+      "6": "Parc de stationnement ouvert à la circulation publique", 
+      "9": "autre"
+    }
+  };
+    
+  return mapping[criteria][value];
 }
 </script>
 
