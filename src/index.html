@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.y.axisRight text {
+    fill: orange;
+}
+
+.y.axisLeft text {
+    fill: steelblue;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar1 {
+  fill: steelblue;
+}
+
+.bar2 {
+  fill: orange;
+}
+
+.x.axis path {
+  display: none;
+}
+
+</style>
+<body>
+<script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+$(function () {
+  var selectedCriteria = "lum";
+  var jsonData, selectedData;
+  $("#criteria").change(function() {
+    //alert($("#criteria").val());
+    selectedData = jsonData[$("#criteria").val()];
+    $("svg").remove();
+    renderChart(selectedData);
+  });
+
+
+  $.getJSON("data.json", function(data, status) {
+    jsonData = data;
+    selectedData = data[selectedCriteria];
+    renderChart(selectedData);
+  });
+});
+
+function renderChart(selectedData) {
+  var margin = {top: 80, right: 80, bottom: 80, left: 80},
+      width = 800 - margin.left - margin.right,
+      height = 400 - margin.top - margin.bottom;
+
+  var x = d3.scale.ordinal()
+      .rangeRoundBands([0, width], .1); 
+
+  /**
+   * Scale of the two axes.
+   * y0 = number
+   * y1 = average of gravity
+   */
+  var y0 = d3.scale.linear().domain([0, 100000]).range([height, 0]),
+  y1 = d3.scale.linear().domain([0, 50]).range([height, 0]);
+
+  var xAxis = d3.svg.axis()
+      .scale(x)
+      .orient("bottom");
+
+  // create left yAxis
+  var yAxisLeft = d3.svg.axis().scale(y0).ticks(4).orient("left");
+  // create right yAxis
+  var yAxisRight = d3.svg.axis().scale(y1).ticks(6).orient("right");
+
+  var svg = d3.select("body").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr("class", "graph")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    x.domain(selectedData.map(function(d) { return d.title; }));
+    y0.domain([0, d3.max(selectedData, function(d) { return d.nb; })]);
+    
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    svg.append("g")
+      .attr("class", "y axis axisLeft")
+      .attr("transform", "translate(0,0)")
+      .call(yAxisLeft)
+    .append("text")
+      .attr("y", 6)
+      .attr("dy", "-2em")
+      .style("text-anchor", "end")
+      .style("text-anchor", "end")
+      .text("Accidents");
+    
+    svg.append("g")
+      .attr("class", "y axis axisRight")
+      .attr("transform", "translate(" + (width) + ",0)")
+      .call(yAxisRight)
+    .append("text")
+      .attr("y", 6)
+      .attr("dy", "-2em")
+      .attr("dx", "2em")
+      .style("text-anchor", "end")
+      .text("Gravité moyenne");
+
+    bars = svg.selectAll(".bar").data(selectedData).enter();
+
+    bars.append("rect")
+        .attr("class", "bar1")
+        .attr("x", function(d) { return x(d.title); })
+        .attr("width", x.rangeBand()/2)
+        .attr("y", function(d) { return y0(d.nb); })
+      .attr("height", function(d,i,j) { return height - y0(d.nb); }); 
+
+    bars.append("rect")
+        .attr("class", "bar2")
+        .attr("x", function(d) { return x(d.title) + x.rangeBand()/2; })
+        .attr("width", x.rangeBand() / 2)
+        .attr("y", function(d) { return y1(d.avg); })
+      .attr("height", function(d,i,j) { return height - y1(d.avg); }); 
+
+}
+</script>
+
+<select id="criteria">
+  <option value="lum" selected>Luminosité</option>
+  <option value="atm">Conditions atmosphériques</option>
+  <option value="int">Type d'intersection</option>
+  <option value="atm">Conditions atmosphériques</option>
+  <option value="col">Type de collision</option>
+  <option value="catr">Type de route</option>
+</select>
+
+</body>
