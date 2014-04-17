@@ -43,7 +43,8 @@ $(function () {
   var jsonData, selectedData;
   $("#criteria").change(function() {
     //alert($("#criteria").val());
-    selectedData = jsonData[$("#criteria").val()];
+    selectedCriteria = $("#criteria").val()
+    selectedData = jsonData[selectedCriteria];
     $("svg").remove();
     renderChart(selectedCriteria, selectedData);
   });
